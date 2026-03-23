@@ -1,0 +1,162 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-homelab-dashboard
+  namespace: monitoring
+data:
+  homelab-overview.json: |
+    {
+      "title": "Homelab Overview",
+      "uid": "homelab-overview",
+      "schemaVersion": 38,
+      "version": 3,
+      "refresh": "30s",
+      "panels": [
+        {
+          "id": 1,
+          "title": "Home Network — Device Status",
+          "description": "Green = reachable, Red = offline or not on WiFi",
+          "type": "stat",
+          "gridPos": { "h": 6, "w": 24, "x": 0, "y": 0 },
+          "targets": [
+            {
+              "datasource": "Prometheus",
+              "expr": "probe_success{job=\"home-ping\"}",
+              "legendFormat": "{{ device }}"
+            }
+          ],
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "reduceOptions": { "calcs": ["lastNotNull"] },
+            "orientation": "horizontal",
+            "textMode": "name"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "mappings": [
+                {
+                  "type": "value",
+                  "options": {
+                    "0": { "text": "OFFLINE", "color": "red" },
+                    "1": { "text": "ONLINE", "color": "green" }
+                  }
+                }
+              ],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "red", "value": null },
+                  { "color": "green", "value": 1 }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": 2,
+          "title": "Ping Response Time (ms)",
+          "description": "How long each device takes to respond to a ping",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 6 },
+          "targets": [
+            {
+              "datasource": "Prometheus",
+              "expr": "probe_duration_seconds{job=\"home-ping\"} * 1000",
+              "legendFormat": "{{ device }}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "ms"
+            }
+          }
+        },
+        {
+          "id": 3,
+          "title": "All Targets Up/Down",
+          "description": "Everything Prometheus is watching — cluster + home network",
+          "type": "stat",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 6 },
+          "targets": [
+            {
+              "datasource": "Prometheus",
+              "expr": "up",
+              "legendFormat": "{{ job }}"
+            },
+            {
+              "datasource": "Prometheus",
+              "expr": "probe_success{job=~\"home-.*\"}",
+              "legendFormat": "{{ job }} / {{ device }}"
+            }
+          ],
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "reduceOptions": { "calcs": ["lastNotNull"] }
+          },
+          "fieldConfig": {
+            "defaults": {
+              "mappings": [
+                {
+                  "type": "value",
+                  "options": {
+                    "0": { "text": "DOWN", "color": "red" },
+                    "1": { "text": "UP", "color": "green" }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": 4,
+          "title": "Prometheus Active Time Series",
+          "type": "stat",
+          "gridPos": { "h": 4, "w": 6, "x": 0, "y": 14 },
+          "targets": [
+            {
+              "datasource": "Prometheus",
+              "expr": "prometheus_tsdb_head_series",
+              "legendFormat": "series"
+            }
+          ],
+          "options": {
+            "colorMode": "value",
+            "graphMode": "area",
+            "reduceOptions": { "calcs": ["lastNotNull"] }
+          }
+        },
+        {
+          "id": 5,
+          "title": "Samples Ingested (rate)",
+          "type": "timeseries",
+          "gridPos": { "h": 4, "w": 18, "x": 6, "y": 14 },
+          "targets": [
+            {
+              "datasource": "Prometheus",
+              "expr": "rate(prometheus_tsdb_head_samples_appended_total[1m])",
+              "legendFormat": "samples/sec"
+            }
+          ]
+        },
+        {
+          "id": 6,
+          "title": "Recent Logs",
+          "type": "logs",
+          "gridPos": { "h": 10, "w": 24, "x": 0, "y": 18 },
+          "targets": [
+            {
+              "datasource": "Loki",
+              "expr": "{job=\"kubernetes-pods\"}",
+              "legendFormat": ""
+            }
+          ],
+          "options": {
+            "showTime": true,
+            "showLabels": true,
+            "wrapLogMessage": false
+          }
+        }
+      ]
+    }

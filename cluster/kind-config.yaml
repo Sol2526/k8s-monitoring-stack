@@ -1,0 +1,13 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: monitoring-lab
+nodes:
+  - role: control-plane
+    # expose ports to reach Grafana from the browser
+    extraPortMappings:
+      - containerPort: 30300  # grafana NodePort
+        hostPort: 3000
+        protocol: TCP
+      - containerPort: 30900  # prometheus NodePort
+        hostPort: 9090
+        protocol: TCP

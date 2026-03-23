@@ -1,0 +1,26 @@
+# -------------------------------------------------------
+# Copy this file to devices.yaml and fill in your own IPs
+#
+#   cp monitoring/prometheus/devices.example.yaml monitoring/prometheus/devices.yaml
+#
+# devices.yaml is gitignored so your real IPs never get pushed to GitHub.
+# -------------------------------------------------------
+
+devices:
+  # Ping checks : add any device on your network here
+  # Find IPs by running: arp -a (Mac/Windows/Linux)
+  ping:
+    - ip: x.x.x.x
+      label: router
+    - ip: x.x.x.x
+      label: laptop
+    - ip: x.x.x.x
+      label: phone
+    - ip: x.x.x.x
+      label: smart-tv
+
+  # HTTP checks : devices that have a web interface
+  # Usually just your router, but could be a NAS, Pi-hole, etc.
+  http:
+    - url: http://192.168.1.1
+      label: router-ui
